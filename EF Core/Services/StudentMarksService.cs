@@ -12,7 +12,7 @@ namespace EF_Core.Services
 {
     internal class StudentMarksService
     {
-        private static List<StudentMark>? _studentMarks=new();
+        private static List<StudentMark>? _studentMarks = new();
 
         public StudentMarksService()
         {
@@ -73,7 +73,7 @@ namespace EF_Core.Services
         {
             _studentMarks = StudentMarksController.GetAllStudentMarks();
             var table = new ConsoleTable
-                ("ID","Exam ID", "Student ID", "Mark");
+                ("ID", "Exam ID", "Student ID", "Mark");
             int i = 1;
             foreach (var studentMark in _studentMarks)
             {
@@ -88,30 +88,39 @@ namespace EF_Core.Services
         private static void SeeFullStudentMarkInfo()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            int index = Convert.ToInt32(Console.ReadLine());
-            int? examId = _studentMarks![index - 1].ExamId;
-            int? studentId = _studentMarks![index - 1].StudentId;
-            var studentMark = StudentMarksController.GetStudentMark(examId, studentId);
-            if (studentMark == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            Console.WriteLine("\n\n\n");
+                int index = Convert.ToInt32(Console.ReadLine());
+                int? examId = _studentMarks![index - 1].ExamId;
+                int? studentId = _studentMarks![index - 1].StudentId;
+                var studentMark = StudentMarksController.GetStudentMark(examId, studentId);
+                if (studentMark == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                Console.WriteLine("\n\n\n");
 
-            Console.WriteLine("Student Mark Info.");
-            var table = new ConsoleTable
-                ("Exam ID", "Exam Subject","Student ID",
-                "Student First Name", "Student Last Name",
-                "Student Phone Number","Mark");
-            table.AddRow(
-                studentMark.ExamId, studentMark?.Exam?.Subject?.Name,studentMark?.Student?.Id,
-                studentMark?.Student?.FirstName, studentMark?.Student?.LastName,
-                studentMark?.Student?.Phone,studentMark?.Marks);
-            table.Write();
-            Console.WriteLine("\n\n\n");
-            Console.ReadKey();
+                Console.WriteLine("Student Mark Info.");
+                var table = new ConsoleTable
+                    ("Exam ID", "Exam Subject", "Student ID",
+                    "Student First Name", "Student Last Name",
+                    "Student Phone Number", "Mark");
+                table.AddRow(
+                    studentMark.ExamId, studentMark?.Exam?.Subject?.Name, studentMark?.Student?.Id,
+                    studentMark?.Student?.FirstName, studentMark?.Student?.LastName,
+                    studentMark?.Student?.Phone, studentMark?.Marks);
+                table.Write();
+                Console.WriteLine("\n\n\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
 
         private static void AddStudentMark()
@@ -143,84 +152,103 @@ namespace EF_Core.Services
                 int x = Convert.ToInt32(Console.ReadLine());
                 Exam ex = ExamController.GetExam(x);
                 newStudentMark!.ExamId = ex?.Id;
-
                 StudentMarksController.AddStudentMark(newStudentMark);
-                Thread.Sleep(4000);
             }
             catch (Exception)
             {
                 Console.WriteLine("Please Enter Valid Values To add a new Student Mark");
-                Thread.Sleep(4000);
+            }
+            finally
+            {
+                Console.ReadKey();
             }
         }
 
         private static void UpdateStudentMark()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            int index = Convert.ToInt32(Console.ReadLine());
-            int? examId = _studentMarks![index-1].ExamId;
-            int? studentId = _studentMarks![index-1].StudentId;
-            var studentMark = StudentMarksController.GetStudentMark(examId, studentId);
-            if (studentMark == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine();
-                Console.WriteLine("*Enter a Number From Following to*\n");
-                Console.WriteLine("1 : Set a new Mark");
-                Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
-                int option = -1;
-                do
+                int index = Convert.ToInt32(Console.ReadLine());
+                int? examId = _studentMarks![index - 1].ExamId;
+                int? studentId = _studentMarks![index - 1].StudentId;
+                var studentMark = StudentMarksController.GetStudentMark(examId, studentId);
+                if (studentMark == null)
                 {
-                    try
-                    {
-                        Console.Write("Number :   ");
-                        option = Convert.ToInt32(Console.ReadLine());
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Please Enter a Valid Value");
-                    }
-                } while (option < 0 || option > 1);
-                Console.WriteLine("\n");
-                switch (option)
-                {
-                    case 1:
-                        Console.Write("Please Enter The New Mark :  ");
-                        studentMark!.Marks = Convert.ToInt32(Console.ReadLine());
-                        break;
-                    case 0:
-                        Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
-                        string? temp = Console.ReadLine();
-                        if (temp != null && temp == "Y")
-                            StudentMarksController.UpdateStudentMark(studentMark);
-                        Thread.Sleep(4000);
-                        return;
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
                 }
+                while (true)
+                {
+                    Console.Clear();
+                    Console.WriteLine();
+                    Console.WriteLine("*Enter a Number From Following to*\n");
+                    Console.WriteLine("1 : Set a new Mark");
+                    Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
+                    int option = -1;
+                    do
+                    {
+                        try
+                        {
+                            Console.Write("Number :   ");
+                            option = Convert.ToInt32(Console.ReadLine());
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Please Enter a Valid Value");
+                        }
+                    } while (option < 0 || option > 1);
+                    Console.WriteLine("\n");
+                    switch (option)
+                    {
+                        case 1:
+                            Console.Write("Please Enter The New Mark :  ");
+                            studentMark!.Marks = Convert.ToInt32(Console.ReadLine());
+                            break;
+                        case 0:
+                            Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
+                            string? temp = Console.ReadLine();
+                            if (temp != null && temp == "Y")
+                                StudentMarksController.UpdateStudentMark(studentMark);
+                            return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
             }
         }
 
         private static void RemoveStudentMark()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            int index = Convert.ToInt32(Console.ReadLine());
-            int? examId = _studentMarks![index-1].ExamId;
-            int? studentId = _studentMarks![index-1].StudentId;
-            var studentMark = StudentMarksController.GetStudentMark(examId,studentId);
-            if (studentMark == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
+                int index = Convert.ToInt32(Console.ReadLine());
+                int? examId = _studentMarks![index - 1].ExamId;
+                int? studentId = _studentMarks![index - 1].StudentId;
+                var studentMark = StudentMarksController.GetStudentMark(examId, studentId);
+                if (studentMark == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                StudentMarksController.RemoveStudentMark(studentMark);
+                Console.WriteLine();
             }
-            StudentMarksController.RemoveStudentMark(studentMark);
-            Console.WriteLine();
-            Thread.Sleep(4000);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
     }
 }

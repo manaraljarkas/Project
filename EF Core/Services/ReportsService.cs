@@ -69,23 +69,30 @@ namespace EF_Core.Services
                         {
                             Console.WriteLine(department.Id + " : " + department.Name);
                         }
-                        int? DepartmentId = Convert.ToInt32(Console.ReadLine());
-                        Department d = departments.First(x=>x.Id==DepartmentId);
-                        var t = new ConsoleTable
-                               ("ID", "Name");
-                        t.AddRow(d.Id, d.Name);
-                        t.Write();
-                        var ss = StudentController.GetAllStudentsByDepartmentId(DepartmentId);
-                        t = new ConsoleTable
-                         ("ID", "Username", "First Name", "Last Name",
-                         "Email", "Phone Number", "Register Date");
-                        foreach (var student in ss)
+                        try
                         {
-                            t.AddRow(student.Id, student.Username, student.FirstName
-                                , student.LastName, student.Email,
-                                student.Phone, student.RegisterDate?.ToString("yyyy-MM-dd"));
+                            int? DepartmentId = Convert.ToInt32(Console.ReadLine());
+                            Department d = departments.First(x => x.Id == DepartmentId);
+                            var t = new ConsoleTable
+                                   ("ID", "Name");
+                            t.AddRow(d.Id, d.Name);
+                            t.Write();
+                            var ss = StudentController.GetAllStudentsByDepartmentId(DepartmentId);
+                            t = new ConsoleTable
+                             ("ID", "Username", "First Name", "Last Name",
+                             "Email", "Phone Number", "Register Date");
+                            foreach (var student in ss)
+                            {
+                                t.AddRow(student.Id, student.Username, student.FirstName
+                                    , student.LastName, student.Email,
+                                    student.Phone, student.RegisterDate?.ToString("yyyy-MM-dd"));
+                            }
+                            t.Write();
                         }
-                        t.Write();
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
                         break;
                 }
                 Console.ReadKey();
@@ -127,12 +134,19 @@ namespace EF_Core.Services
                         var exams = ExamController.GetAllExams();
                         foreach (var exam in exams)
                         {
-                            if (!MyExams.Any(b=>b.Id==exam.Id))
+                            if (!MyExams.Any(b => b.Id == exam.Id))
                                 Console.WriteLine(exam.Id + " : " + exam?.Subject?.Name);
                         }
-                        int x = Convert.ToInt32(Console.ReadLine());
-                        Exam ex = ExamController.GetExam(x);
-                        MyExams.Add(ex);
+                        try
+                        {
+                            int x = Convert.ToInt32(Console.ReadLine());
+                            Exam ex = ExamController.GetExam(x);
+                            MyExams.Add(ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
                         break;
                 }
             }
@@ -142,7 +156,7 @@ namespace EF_Core.Services
                 Console.WriteLine("Enter An Exam At least");
                 return;
             }
-            
+
             foreach (var exam in MyExams)
             {
                 var table = new ConsoleTable
@@ -211,9 +225,16 @@ namespace EF_Core.Services
                             if (!MyExams.Any(b => b.Id == exam.Id))
                                 Console.WriteLine(exam.Id + " : " + exam?.Subject?.Name);
                         }
-                        int x = Convert.ToInt32(Console.ReadLine());
-                        Exam ex = ExamController.GetExam(x);
-                        MyExams.Add(ex);
+                        try
+                        {
+                            int x = Convert.ToInt32(Console.ReadLine());
+                            Exam ex = ExamController.GetExam(x);
+                            MyExams.Add(ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
                         break;
                 }
             }
@@ -258,100 +279,139 @@ namespace EF_Core.Services
             {
                 Console.WriteLine(student.Id + " : " + student.FirstName + " " + student.LastName);
             }
-            int s = Convert.ToInt32(Console.ReadLine());
-            Student? stu = StudentController.GetStudent(s);
-            if (stu == null)
-                return;
-            while (true)
+            try
             {
-                Console.Clear();
-                Console.WriteLine("\n");
-                Console.WriteLine("*Enter a Number From Following to*\n");
-                Console.WriteLine("1 : Print All Department's Subjects");
-                Console.WriteLine("2 : Print One Year Subjects");
-                Console.WriteLine("3 : Print One Term Subjects");
-                Console.WriteLine("4 : Print a Year/Term Subject");
-                Console.WriteLine("0 : Exit\n");
-                int option = -1;
-                do
+                int s = Convert.ToInt32(Console.ReadLine());
+                Student? stu = StudentController.GetStudent(s);
+                if (stu == null)
+                    return;
+                while (true)
                 {
-                    try
+                    Console.Clear();
+                    Console.WriteLine("\n");
+                    Console.WriteLine("*Enter a Number From Following to*\n");
+                    Console.WriteLine("1 : Print All Department's Subjects");
+                    Console.WriteLine("2 : Print One Year Subjects");
+                    Console.WriteLine("3 : Print One Term Subjects");
+                    Console.WriteLine("4 : Print a Year/Term Subject");
+                    Console.WriteLine("0 : Exit\n");
+                    int option = -1;
+                    do
                     {
-                        Console.Write("Number :   ");
-                        option = Convert.ToInt32(Console.ReadLine());
-                    }
-                    catch (Exception)
+                        try
+                        {
+                            Console.Write("Number :   ");
+                            option = Convert.ToInt32(Console.ReadLine());
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Please Enter a Valid Value");
+                        }
+                    } while (option < 0 || option > 4);
+                    Console.WriteLine("\n");
+                    switch (option)
                     {
-                        Console.WriteLine("Please Enter a Valid Value");
+                        case 0:
+                            return;
+                        case 1:
+                            var subjects = SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId);
+                            double? studentPercentage = AverageStudentDegree(stu, subjects);
+                            Console.WriteLine("\nStudent's Percentage In Department is:  " + studentPercentage + "\n");
+                            var table = new ConsoleTable
+                                ("ID", "Name", "Term", "Year", "Minimum Degree");
+                            foreach (var subject in subjects)
+                            {
+                                table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                            }
+                            table.Write();
+                            break;
+                        case 2:
+                            Console.WriteLine("\n*Enter the year (1 or 2)*\n");
+                            Console.Write("Number :   ");
+                            option = Convert.ToInt32(Console.ReadLine());
+                            subjects =
+                                SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId)
+                                .Where(y => y.Year == option).ToList();
+                            studentPercentage = AverageStudentDegree(stu, subjects);
+                            Console.WriteLine("\nStudent's Percentage In That Year is:  " + studentPercentage + "\n");
+                            table = new ConsoleTable
+                                ("ID", "Name", "Term", "Year", "Minimum Degree");
+                            foreach (var subject in subjects)
+                            {
+                                table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                            }
+                            table.Write();
+                            break;
+                        case 3:
+                            Console.WriteLine("\n*Enter the Term (1 or 2)*\n");
+                            Console.Write("Number :   ");
+                            option = Convert.ToInt32(Console.ReadLine());
+                            subjects =
+                                SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId)
+                                .Where(y => y.Term == option).ToList();
+                            studentPercentage = AverageStudentDegree(stu, subjects);
+                            Console.WriteLine("\nStudent's Percentage In That Term is:  " + studentPercentage + "\n");
+                            table = new ConsoleTable
+                                ("ID", "Name", "Term", "Year", "Minimum Degree");
+                            foreach (var subject in subjects)
+                            {
+                                table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                            }
+                            table.Write();
+                            break;
+                        case 4:
+                            Console.WriteLine("\n*Enter the year (1 or 2)*\n");
+                            Console.Write("Number :   ");
+                            int optionYear = Convert.ToInt32(Console.ReadLine());
+                            Console.WriteLine("\n*Enter the term (1 or 2)*\n");
+                            Console.Write("Number :   ");
+                            int optionTerm = Convert.ToInt32(Console.ReadLine());
+                            subjects =
+                                SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId)
+                                .Where(y => y.Year == optionYear && y.Term == optionTerm).ToList();
+                            studentPercentage = AverageStudentDegree(stu, subjects);
+                            Console.WriteLine("\nStudent's Percentage In That Year and Term is:  " + studentPercentage + "\n");
+                            table = new ConsoleTable
+                                ("ID", "Name", "Term", "Year", "Minimum Degree");
+                            foreach (var subject in subjects)
+                            {
+                                table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                            }
+                            table.Write();
+                            break;
                     }
-                } while (option < 0 || option > 4);
-                Console.WriteLine("\n");
-                switch (option)
-                {
-                    case 0:
-                        return;
-                    case 1:
-                        var subjects = SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId);
-                        var table = new ConsoleTable
-                            ("ID", "Name", "Term", "Year", "Minimum Degree");
-                        foreach (var subject in subjects)
-                        {
-                            table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
-                        }
-                        table.Write();
-                        break;
-                    case 2:
-                        Console.WriteLine("\n*Enter the year (1 or 2)*\n");
-                        Console.Write("Number :   ");
-                        option = Convert.ToInt32(Console.ReadLine());
-                        subjects =
-                            SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId)
-                            .Where(y => y.Year == option).ToList();
-                        table = new ConsoleTable
-                            ("ID", "Name", "Term", "Year", "Minimum Degree");
-                        foreach (var subject in subjects)
-                        {
-                            table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
-                        }
-                        table.Write();
-                        break;
-                    case 3:
-                        Console.WriteLine("\n*Enter the Term (1 or 2)*\n");
-                        Console.Write("Number :   ");
-                        option = Convert.ToInt32(Console.ReadLine());
-                        subjects =
-                            SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId)
-                            .Where(y => y.Term == option).ToList();
-                        table = new ConsoleTable
-                            ("ID", "Name", "Term", "Year", "Minimum Degree");
-                        foreach (var subject in subjects)
-                        {
-                            table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
-                        }
-                        table.Write();
-                        break;
-                    case 4:
-                        Console.WriteLine("\n*Enter the year (1 or 2)*\n");
-                        Console.Write("Number :   ");
-                        int optionYear = Convert.ToInt32(Console.ReadLine());
-                        Console.WriteLine("\n*Enter the term (1 or 2)*\n");
-                        Console.Write("Number :   ");
-                        int optionTerm = Convert.ToInt32(Console.ReadLine());
-                        subjects =
-                            SubjectController.GetAllSubjectsByDepartmentId(stu.DepartmentId)
-                            .Where(y => y.Year == optionYear && y.Term == optionTerm).ToList();
-                        table = new ConsoleTable
-                            ("ID", "Name", "Term", "Year", "Minimum Degree");
-                        foreach (var subject in subjects)
-                        {
-                            table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
-                        }
-                        table.Write();
-                        break;
-
+                    Console.ReadKey();
                 }
-                Console.ReadKey();
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private static double? AverageStudentDegree(Student? student, List<Subject> subjects)
+        {
+            List<StudentSubjectMarks> subjectMarks = new();
+            double? totalStudentDegree = 0;
+            foreach (var marks in student?.StudentMarks!)
+            {
+                if (subjects.Any(s => s.Id == marks?.Exam?.Subject!.Id))
+                {
+                    if (subjectMarks.Any(b => b.SubjectId == marks?.Exam?.SubjectId && b.Mark < marks?.Marks))
+                    {
+                        int index = subjectMarks.FindIndex(b => b.SubjectId == marks?.Exam?.SubjectId);
+                        subjectMarks[index].Mark = marks!.Marks;
+                    }
+                    else
+                        subjectMarks.Add(new StudentSubjectMarks()
+                        {
+                            Mark = marks!.Marks,
+                            SubjectId = marks?.Exam?.SubjectId
+                        });
+                }
+            }
+            subjectMarks.ForEach(s => { totalStudentDegree += s.Mark; });
+            return ((totalStudentDegree / (subjects.Count * 100)) * 100);
         }
 
         public static void RunSubjectLecture()
@@ -362,34 +422,45 @@ namespace EF_Core.Services
             {
                 Console.WriteLine(department.Id + " : " + department.Name);
             }
-            int did = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("\n*Enter the year (1 or 2)*\n");
-            Console.Write("Number :   ");
-            int optionYear = Convert.ToInt32(Console.ReadLine());
-            var subjects =
-                           SubjectController.GetAllSubjectsByDepartmentId(did)
-                           .Where(y => y.Year == optionYear).ToList();
-            var table = new ConsoleTable
-                ("ID", "Name", "Term", "Year", "Minimum Degree");
-            foreach (var subject in subjects)
+            try
             {
-                table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                int did = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine("\n*Enter the year (1 or 2)*\n");
+                Console.Write("Number :   ");
+                int optionYear = Convert.ToInt32(Console.ReadLine());
+                var subjects =
+                               SubjectController.GetAllSubjectsByDepartmentId(did)
+                               .Where(y => y.Year == optionYear).ToList();
+                var table = new ConsoleTable
+                    ("ID", "Name", "Term", "Year", "Minimum Degree");
+                foreach (var subject in subjects)
+                {
+                    table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                }
+                table.Write();
+                Console.WriteLine("\nPlease Enter The Subject Id To See its Lectures");
+                Console.Write("Number :   ");
+                int sid = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine("\nSubject Lectures Info.");
+                table = new ConsoleTable
+                    ("Lecture ID", "Title", "Content");
+                Subject? s = SubjectController.GetSubject(sid);
+                for (int i = 0; i < s?.Lectures?.Count; i++)
+                {
+                    SubjectLecture? lecture = s.Lectures[i];
+                    table.AddRow(lecture.Id, lecture.Title, lecture.Content);
+                }
+                table.Write();
+
             }
-            table.Write();
-            Console.WriteLine("\nPlease Enter The Subject Id To See its Lectures");
-            Console.Write("Number :   ");
-            int sid = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("\nSubject Lectures Info.");
-            table = new ConsoleTable
-                ("Lecture ID", "Title", "Content");
-            Subject? s=SubjectController.GetSubject(sid);
-            for (int i = 0; i < s?.Lectures?.Count; i++)
+            catch (Exception ex)
             {
-                SubjectLecture? lecture = s.Lectures[i];
-                table.AddRow(lecture.Id, lecture.Title, lecture.Content);
+                Console.WriteLine(ex.Message);
             }
-            table.Write();
-            Console.ReadKey();
+            finally
+            {
+                Console.ReadKey();
+            }
         }
     }
 }

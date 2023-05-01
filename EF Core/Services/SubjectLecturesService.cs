@@ -79,33 +79,42 @@ namespace EF_Core.Services
         private static void SeeFullSubjectLectureInfo()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var subjectLecture = SubjectLectureController.GetSubjectLecture(Convert.ToInt32(Console.ReadLine()));
-            if (subjectLecture == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            Console.WriteLine("\n\n\n");
+                var subjectLecture = SubjectLectureController.GetSubjectLecture(Convert.ToInt32(Console.ReadLine()));
+                if (subjectLecture == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                Console.WriteLine("\n\n\n");
 
-            Console.WriteLine("Subject Lecture Info.");
-            var table = new ConsoleTable
-                ("ID", "Title", "Content", "Subject Name");
-            table.AddRow(
-                subjectLecture.Id, subjectLecture.Title,
-                subjectLecture.Content, subjectLecture?.Subject?.Name);
-            table.Write();
-            Console.WriteLine("Subject Info.");
-            table = new ConsoleTable
-                ("ID", "Name", "Term", "Year", "Minimum Degree", "Department");
-            table.AddRow(
-                subjectLecture?.Subject?.Id, subjectLecture?.Subject?.Name,
-                subjectLecture?.Subject?.Term, subjectLecture?.Subject?.Year,
-                subjectLecture?.Subject?.MinimumDegree,
-                subjectLecture?.Subject?.Department?.Name);
-            table.Write();
-            Console.WriteLine("\n\n\n");
-            Console.ReadKey();
+                Console.WriteLine("Subject Lecture Info.");
+                var table = new ConsoleTable
+                    ("ID", "Title", "Content", "Subject Name");
+                table.AddRow(
+                    subjectLecture.Id, subjectLecture.Title,
+                    subjectLecture.Content, subjectLecture?.Subject?.Name);
+                table.Write();
+                Console.WriteLine("Subject Info.");
+                table = new ConsoleTable
+                    ("ID", "Name", "Term", "Year", "Minimum Degree", "Department");
+                table.AddRow(
+                    subjectLecture?.Subject?.Id, subjectLecture?.Subject?.Name,
+                    subjectLecture?.Subject?.Term, subjectLecture?.Subject?.Year,
+                    subjectLecture?.Subject?.MinimumDegree,
+                    subjectLecture?.Subject?.Department?.Name);
+                table.Write();
+                Console.WriteLine("\n\n\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
 
         private static void AddSubjectLecture()
@@ -117,7 +126,7 @@ namespace EF_Core.Services
                 Console.Write("Please Enter The Title :  ");
                 newSubjectLecture.Title = Console.ReadLine();
                 Console.Write("Please Enter The Content :  ");
-                newSubjectLecture.Content =Console.ReadLine();
+                newSubjectLecture.Content = Console.ReadLine();
                 Console.WriteLine("Please Select a number from following Subject IDs:  ");
                 var subjects = SubjectController.GetAllSubjects();
                 foreach (var subject in subjects)
@@ -127,92 +136,107 @@ namespace EF_Core.Services
                 int x = Convert.ToInt32(Console.ReadLine());
                 newSubjectLecture.SubjectId = x;
                 SubjectLectureController.AddSubjectLecture(newSubjectLecture);
-                Thread.Sleep(4000);
             }
             catch (Exception)
             {
                 Console.WriteLine("Please Enter Valid Values To add a new Subject Lecture");
-                Thread.Sleep(4000);
             }
+            finally { Console.ReadKey(); }
         }
 
         private static void UpdateSubjectLecture()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var subjectLecture = SubjectLectureController.GetSubjectLecture(Convert.ToInt32(Console.ReadLine()));
-            if (subjectLecture == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine();
-                Console.WriteLine("*Enter a Number From Following to*\n");
-                Console.WriteLine("1 : Set a new Title");
-                Console.WriteLine("2 : Set a new Content");
-                Console.WriteLine("3 : Set a new Subject");
-                Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
-                int option = -1;
-                do
+                var subjectLecture = SubjectLectureController.GetSubjectLecture(Convert.ToInt32(Console.ReadLine()));
+                if (subjectLecture == null)
                 {
-                    try
-                    {
-                        Console.Write("Number :   ");
-                        option = Convert.ToInt32(Console.ReadLine());
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Please Enter a Valid Value");
-                    }
-                } while (option < 0 || option > 3);
-                Console.WriteLine("\n");
-                switch (option)
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                while (true)
                 {
-                    case 1:
-                        Console.Write("Please Enter The New Title :  ");
-                        subjectLecture.Title = Console.ReadLine();
-                        break;
-                    case 2:
-                        Console.Write("Please Enter The New Content :  ");
-                        subjectLecture.Content = Console.ReadLine();
-                        break;
-                    case 3:
-                        Console.WriteLine("Please Select a number from following Subject IDs:  ");
-                        var subjects = SubjectController.GetAllSubjects();
-                        foreach (var subject in subjects)
+                    Console.Clear();
+                    Console.WriteLine();
+                    Console.WriteLine("*Enter a Number From Following to*\n");
+                    Console.WriteLine("1 : Set a new Title");
+                    Console.WriteLine("2 : Set a new Content");
+                    Console.WriteLine("3 : Set a new Subject");
+                    Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
+                    int option = -1;
+                    do
+                    {
+                        try
                         {
-                            Console.WriteLine(subject.Id + " : " +  subject.Name);
+                            Console.Write("Number :   ");
+                            option = Convert.ToInt32(Console.ReadLine());
                         }
-                        int x = Convert.ToInt32(Console.ReadLine());
-                        subjectLecture.Subject = SubjectController.GetSubject(x);
-                        break;
-                    case 0:
-                        Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
-                        string? temp = Console.ReadLine();
-                        if (temp != null && temp == "Y")
-                            SubjectLectureController.UpdateSubjectLecture(subjectLecture);
-                        Thread.Sleep(4000);
-                        return;
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Please Enter a Valid Value");
+                        }
+                    } while (option < 0 || option > 3);
+                    Console.WriteLine("\n");
+                    switch (option)
+                    {
+                        case 1:
+                            Console.Write("Please Enter The New Title :  ");
+                            subjectLecture.Title = Console.ReadLine();
+                            break;
+                        case 2:
+                            Console.Write("Please Enter The New Content :  ");
+                            subjectLecture.Content = Console.ReadLine();
+                            break;
+                        case 3:
+                            Console.WriteLine("Please Select a number from following Subject IDs:  ");
+                            var subjects = SubjectController.GetAllSubjects();
+                            foreach (var subject in subjects)
+                            {
+                                Console.WriteLine(subject.Id + " : " + subject.Name);
+                            }
+                            int x = Convert.ToInt32(Console.ReadLine());
+                            subjectLecture.Subject = SubjectController.GetSubject(x);
+                            break;
+                        case 0:
+                            Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
+                            string? temp = Console.ReadLine();
+                            if (temp != null && temp == "Y")
+                                SubjectLectureController.UpdateSubjectLecture(subjectLecture);
+                            return;
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally { Console.ReadKey(); }
         }
+
 
         private static void RemoveSubjectLecture()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var lecture = SubjectLectureController.GetSubjectLecture(Convert.ToInt32(Console.ReadLine()));
-            if (lecture == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
+                var lecture = SubjectLectureController.GetSubjectLecture(Convert.ToInt32(Console.ReadLine()));
+                if (lecture == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                SubjectLectureController.RemoveSubjectLecture(lecture);
+                Console.WriteLine();
             }
-            SubjectLectureController.RemoveSubjectLecture(lecture);
-            Console.WriteLine();
-            Thread.Sleep(4000);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
     }
 }

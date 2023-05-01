@@ -51,6 +51,7 @@ namespace EF_Core
         static void DatabaseSeed()
         {
             using var context = new ApplicationDbContext();
+            //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             if (context.Departments.Any())
                 return;

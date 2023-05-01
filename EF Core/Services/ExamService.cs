@@ -80,46 +80,56 @@ namespace EF_Core.Services
         private static void SeeFullExamInfo()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var exam = ExamController.GetExam(Convert.ToInt32(Console.ReadLine()));
-            if (exam == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            Console.WriteLine("\n\n\n");
+                var exam = ExamController.GetExam(Convert.ToInt32(Console.ReadLine()));
+                if (exam == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                Console.WriteLine("\n\n\n");
 
-            Console.WriteLine("Exam Info.");
-            var table = new ConsoleTable
-                ("ID", "Date", "Term", "Subject Name");
-            table.AddRow(
-                exam.Id,  exam.Date,
-                exam.Term, exam?.Subject?.Name);
-            table.Write();
-            Console.WriteLine("Subject Info.");
-            table = new ConsoleTable
-                ("ID", "Name", "Term", "Year", "Minimum Degree", "Department");
-            table.AddRow(
-                exam?.Subject?.Id, exam?.Subject?.Name,
-                exam?.Subject?.Term, exam?.Subject?.Year,
-                exam?.Subject?.MinimumDegree,
-                exam?.Subject?.Department?.Name);
-            table.Write();
-            Console.WriteLine("\nStudent Marks Info.");
-            table = new ConsoleTable
-                ("Student ID", "First Name", "Last Name", "Phone Number", "Mark");
-            for (int i = 0; i < exam?.StudentMarks?.Count; i++)
-            {
-                StudentMark? marks = exam.StudentMarks[i];
+                Console.WriteLine("Exam Info.");
+                var table = new ConsoleTable
+                    ("ID", "Date", "Term", "Subject Name");
                 table.AddRow(
-                marks?.Student?.Id, marks?.Student?.FirstName,
-                marks?.Student?.LastName, marks?.Student?.Phone,
-                marks?.Marks);
+                    exam.Id, exam.Date,
+                    exam.Term, exam?.Subject?.Name);
+                table.Write();
+                Console.WriteLine("Subject Info.");
+                table = new ConsoleTable
+                    ("ID", "Name", "Term", "Year", "Minimum Degree", "Department");
+                table.AddRow(
+                    exam?.Subject?.Id, exam?.Subject?.Name,
+                    exam?.Subject?.Term, exam?.Subject?.Year,
+                    exam?.Subject?.MinimumDegree,
+                    exam?.Subject?.Department?.Name);
+                table.Write();
+                Console.WriteLine("\nStudent Marks Info.");
+                table = new ConsoleTable
+                    ("Student ID", "First Name", "Last Name", "Phone Number", "Mark");
+                for (int i = 0; i < exam?.StudentMarks?.Count; i++)
+                {
+                    StudentMark? marks = exam.StudentMarks[i];
+                    table.AddRow(
+                    marks?.Student?.Id, marks?.Student?.FirstName,
+                    marks?.Student?.LastName, marks?.Student?.Phone,
+                    marks?.Marks);
+
+                }
+                table.Write();
+                Console.WriteLine("\n\n\n");
 
             }
-            table.Write();
-            Console.WriteLine("\n\n\n");
-            Console.ReadKey();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
 
         private static void AddExam()
@@ -129,7 +139,7 @@ namespace EF_Core.Services
             {
                 Exam exam = new();
                 Console.Write("Please Enter The Date (yyyy-MM-dd) :  ");
-                exam.Date =Convert.ToDateTime(Console.ReadLine());
+                exam.Date = Convert.ToDateTime(Console.ReadLine());
                 Console.Write("Please Enter The Term :  ");
                 exam.Term = Convert.ToInt16(Console.ReadLine());
                 Console.WriteLine("Please Select a number from following Subject IDs:  ");
@@ -141,92 +151,106 @@ namespace EF_Core.Services
                 int x = Convert.ToInt32(Console.ReadLine());
                 exam.SubjectId = x;
                 ExamController.AddExam(exam);
-                Thread.Sleep(4000);
             }
             catch (Exception)
             {
                 Console.WriteLine("Please Enter Valid Values To add a new Exam");
-                Thread.Sleep(4000);
             }
+            finally { Console.ReadKey(); }
         }
 
         private static void UpdateExam()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var exam = ExamController.GetExam(Convert.ToInt32(Console.ReadLine()));
-            if (exam == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine();
-                Console.WriteLine("*Enter a Number From Following to*\n");
-                Console.WriteLine("1 : Set a new Date");
-                Console.WriteLine("2 : Set a new Term");
-                Console.WriteLine("3 : Set a new Subject");
-                Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
-                int option = -1;
-                do
+                var exam = ExamController.GetExam(Convert.ToInt32(Console.ReadLine()));
+                if (exam == null)
                 {
-                    try
-                    {
-                        Console.Write("Number :   ");
-                        option = Convert.ToInt32(Console.ReadLine());
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Please Enter a Valid Value");
-                    }
-                } while (option < 0 || option > 3);
-                Console.WriteLine("\n");
-                switch (option)
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                while (true)
                 {
-                    case 1:
-                        Console.Write("Please Enter The New Date (yyyy-MM-dd) :  ");
-                        exam.Date = Convert.ToDateTime(Console.ReadLine());
-                        break;
-                    case 2:
-                        Console.Write("Please Enter The New Term :  ");
-                        exam.Term =Convert.ToInt16(Console.ReadLine());
-                        break;
-                    case 3:
-                        Console.WriteLine("Please Select a number from following Subject IDs:  ");
-                        var subjects = SubjectController.GetAllSubjects();
-                        foreach (var subject in subjects)
+                    Console.Clear();
+                    Console.WriteLine();
+                    Console.WriteLine("*Enter a Number From Following to*\n");
+                    Console.WriteLine("1 : Set a new Date");
+                    Console.WriteLine("2 : Set a new Term");
+                    Console.WriteLine("3 : Set a new Subject");
+                    Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
+                    int option = -1;
+                    do
+                    {
+                        try
                         {
-                            Console.WriteLine(subject.Id + " : " + subject.Name);
+                            Console.Write("Number :   ");
+                            option = Convert.ToInt32(Console.ReadLine());
                         }
-                        int x = Convert.ToInt32(Console.ReadLine());
-                        exam.Subject = SubjectController.GetSubject(x);
-                        break;
-                    case 0:
-                        Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
-                        string? temp = Console.ReadLine();
-                        if (temp != null && temp == "Y")
-                            ExamController.UpdateExam(exam);
-                        Thread.Sleep(4000);
-                        return;
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Please Enter a Valid Value");
+                        }
+                    } while (option < 0 || option > 3);
+                    Console.WriteLine("\n");
+                    switch (option)
+                    {
+                        case 1:
+                            Console.Write("Please Enter The New Date (yyyy-MM-dd) :  ");
+                            exam.Date = Convert.ToDateTime(Console.ReadLine());
+                            break;
+                        case 2:
+                            Console.Write("Please Enter The New Term :  ");
+                            exam.Term = Convert.ToInt16(Console.ReadLine());
+                            break;
+                        case 3:
+                            Console.WriteLine("Please Select a number from following Subject IDs:  ");
+                            var subjects = SubjectController.GetAllSubjects();
+                            foreach (var subject in subjects)
+                            {
+                                Console.WriteLine(subject.Id + " : " + subject.Name);
+                            }
+                            int x = Convert.ToInt32(Console.ReadLine());
+                            exam.Subject = SubjectController.GetSubject(x);
+                            break;
+                        case 0:
+                            Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
+                            string? temp = Console.ReadLine();
+                            if (temp != null && temp == "Y")
+                                ExamController.UpdateExam(exam);
+                            return;
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally { Console.ReadKey(); }
         }
 
         private static void RemoveExam()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var exam = ExamController.GetExam(Convert.ToInt32(Console.ReadLine()));
-            if (exam == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
+                var exam = ExamController.GetExam(Convert.ToInt32(Console.ReadLine()));
+                if (exam == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                ExamController.RemoveExam(exam);
+                Console.WriteLine();
             }
-            ExamController.RemoveExam(exam);
-            Console.WriteLine();
-            Thread.Sleep(4000);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
     }
 }

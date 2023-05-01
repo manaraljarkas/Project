@@ -80,39 +80,48 @@ namespace EF_Core.Services
         private static void SeeFullStudentInfo()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var student = StudentController.GetStudent(Convert.ToInt32(Console.ReadLine()));
-            if (student == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            Console.WriteLine("\n\n\n");
-            Console.WriteLine("Student Info.");
-            var table = new ConsoleTable
-                ("ID", "Username", "First Name", "Last Name",
-                "Email", "Phone Number", "Register Date", "Department");
-            table.AddRow(
-                student.Id, student.Username, student.FirstName, student.LastName,
-                student.Email, student.Phone, student.RegisterDate?.ToString("yyyy-MM-dd"),
-                student?.Department?.Name
-                );
-            table.Write();
-            Console.WriteLine("\nStudent Marks Info.");
-            table = new ConsoleTable
-                ("Exam ID", "Exam Date", "Exam Term","Subject Name", "Mark");
-            for (int i = 0; i < student?.StudentMarks?.Count; i++)
-            {
-                StudentMark? marks = student.StudentMarks[i];
+                var student = StudentController.GetStudent(Convert.ToInt32(Console.ReadLine()));
+                if (student == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                Console.WriteLine("\n\n\n");
+                Console.WriteLine("Student Info.");
+                var table = new ConsoleTable
+                    ("ID", "Username", "First Name", "Last Name",
+                    "Email", "Phone Number", "Register Date", "Department");
                 table.AddRow(
-                marks?.Exam?.Id, marks?.Exam?.Date, marks?.Exam?.Term,marks?.Exam?.Subject?.Name,
-                marks?.Marks);
+                    student.Id, student.Username, student.FirstName, student.LastName,
+                    student.Email, student.Phone, student.RegisterDate?.ToString("yyyy-MM-dd"),
+                    student?.Department?.Name
+                    );
+                table.Write();
+                Console.WriteLine("\nStudent Marks Info.");
+                table = new ConsoleTable
+                    ("Exam ID", "Exam Date", "Exam Term", "Subject Name", "Mark");
+                for (int i = 0; i < student?.StudentMarks?.Count; i++)
+                {
+                    StudentMark? marks = student.StudentMarks[i];
+                    table.AddRow(
+                    marks?.Exam?.Id, marks?.Exam?.Date, marks?.Exam?.Term, marks?.Exam?.Subject?.Name,
+                    marks?.Marks);
 
+                }
+                table.Write();
+
+                Console.WriteLine("\n\n\n");
             }
-            table.Write();
-
-            Console.WriteLine("\n\n\n");
-            Console.ReadKey();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
+            }
         }
 
         private static void AddStudent()
@@ -139,108 +148,122 @@ namespace EF_Core.Services
                 }
                 newStudent.DepartmentId = Convert.ToInt32(Console.ReadLine());
                 StudentController.AddStudent(newStudent);
-                Thread.Sleep(4000);
             }
             catch (Exception)
             {
                 Console.WriteLine("Please Enter Valid Values To add a new Student");
-                Thread.Sleep(4000);
             }
+            finally { Console.ReadKey(); }
         }
 
         private static void UpdateStudent()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var student = StudentController.GetStudent(Convert.ToInt32(Console.ReadLine()));
-            if (student == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            while (true)
-            {
-                Console.Clear();
-                Console.WriteLine();
-                Console.WriteLine("*Enter a Number From Following to*\n");
-                Console.WriteLine("1 : Set a new Username");
-                Console.WriteLine("2 : Set a new First Name");
-                Console.WriteLine("3 : Set a new Last Name");
-                Console.WriteLine("4 : Set a new Email");
-                Console.WriteLine("5 : Set a new Phone Number");
-                Console.WriteLine("6 : Set a new Department");
-                Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
-                int option = -1;
-                do
+                var student = StudentController.GetStudent(Convert.ToInt32(Console.ReadLine()));
+                if (student == null)
                 {
-                    try
-                    {
-                        Console.Write("Number :   ");
-                        option = Convert.ToInt32(Console.ReadLine());
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Please Enter a Valid Value");
-                    }
-                } while (option < 0 || option > 6);
-                Console.WriteLine("\n");
-                switch (option)
-                {
-                    case 1:
-                        Console.Write("Please Enter The New Username :  ");
-                        student.Username = Console.ReadLine();
-                        break;
-                    case 2:
-                        Console.Write("Please Enter The New First Name :  ");
-                        student.FirstName = Console.ReadLine();
-                        break;
-                    case 3:
-                        Console.Write("Please Enter The New Last Name :  ");
-                        student.LastName = Console.ReadLine();
-                        break;
-                    case 4:
-                        Console.Write("Please Enter The New Email :  ");
-                        student.Email = Console.ReadLine();
-                        break;
-                    case 5:
-                        Console.Write("Please Enter The New Phone Number :  ");
-                        student.Phone = Console.ReadLine();
-                        break;
-                    case 6:
-                        Console.WriteLine("Please Select a number from following Departments IDs:  ");
-                        var departments = DepartmentController.GetAllDepartments();
-                        foreach (var department in departments)
-                        {
-                            Console.WriteLine(department.Id + " : " + department.Name);
-                        }
-
-                        int x = Convert.ToInt32(Console.ReadLine());
-                        student.Department = DepartmentController.GetDepartment(x);
-                        break;
-                    case 0:
-                        Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
-                        string? temp = Console.ReadLine();
-                        if(temp != null && temp == "Y")
-                            StudentController.UpdateStudent(student);
-                        Thread.Sleep(4000);
-                        return;
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
                 }
+                while (true)
+                {
+                    Console.Clear();
+                    Console.WriteLine();
+                    Console.WriteLine("*Enter a Number From Following to*\n");
+                    Console.WriteLine("1 : Set a new Username");
+                    Console.WriteLine("2 : Set a new First Name");
+                    Console.WriteLine("3 : Set a new Last Name");
+                    Console.WriteLine("4 : Set a new Email");
+                    Console.WriteLine("5 : Set a new Phone Number");
+                    Console.WriteLine("6 : Set a new Department");
+                    Console.WriteLine("0 : Exit With Save New Info (Yes/No)\n");
+                    int option = -1;
+                    do
+                    {
+                        try
+                        {
+                            Console.Write("Number :   ");
+                            option = Convert.ToInt32(Console.ReadLine());
+                        }
+                        catch (Exception)
+                        {
+                            Console.WriteLine("Please Enter a Valid Value");
+                        }
+                    } while (option < 0 || option > 6);
+                    Console.WriteLine("\n");
+                    switch (option)
+                    {
+                        case 1:
+                            Console.Write("Please Enter The New Username :  ");
+                            student.Username = Console.ReadLine();
+                            break;
+                        case 2:
+                            Console.Write("Please Enter The New First Name :  ");
+                            student.FirstName = Console.ReadLine();
+                            break;
+                        case 3:
+                            Console.Write("Please Enter The New Last Name :  ");
+                            student.LastName = Console.ReadLine();
+                            break;
+                        case 4:
+                            Console.Write("Please Enter The New Email :  ");
+                            student.Email = Console.ReadLine();
+                            break;
+                        case 5:
+                            Console.Write("Please Enter The New Phone Number :  ");
+                            student.Phone = Console.ReadLine();
+                            break;
+                        case 6:
+                            Console.WriteLine("Please Select a number from following Departments IDs:  ");
+                            var departments = DepartmentController.GetAllDepartments();
+                            foreach (var department in departments)
+                            {
+                                Console.WriteLine(department.Id + " : " + department.Name);
+                            }
+
+                            int x = Convert.ToInt32(Console.ReadLine());
+                            student.Department = DepartmentController.GetDepartment(x);
+                            break;
+                        case 0:
+                            Console.WriteLine("Do You Want To Save The New Changes? (Y/N)");
+                            string? temp = Console.ReadLine();
+                            if (temp != null && temp == "Y")
+                                StudentController.UpdateStudent(student);
+                            return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
             }
         }
 
         private static void RemoveStudent()
         {
-            Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var student = StudentController.GetStudent(Convert.ToInt32(Console.ReadLine()));
-            if (student == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
+                Console.WriteLine("\n*Please Select An ID From Above Table*\n");
+                var student = StudentController.GetStudent(Convert.ToInt32(Console.ReadLine()));
+                if (student == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                StudentController.RemoveStudent(student);
+                Console.WriteLine();
             }
-            StudentController.RemoveStudent(student);
-            Console.WriteLine();
-            Thread.Sleep(4000);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally { Console.ReadKey(); }
         }
     }
 }

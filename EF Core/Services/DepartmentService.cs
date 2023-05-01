@@ -77,43 +77,52 @@ namespace EF_Core.Services
         private static void SeeFullDepartmentInfo()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var department = DepartmentController.GetDepartment(Convert.ToInt32(Console.ReadLine()));
-            if (department == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
+                var department = DepartmentController.GetDepartment(Convert.ToInt32(Console.ReadLine()));
+                if (department == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                Console.WriteLine("\n\n\n");
+                Console.WriteLine("Department Info.");
+                var table = new ConsoleTable
+                    ("ID", "Name");
+                table.AddRow(department.Id, department.Name);
+                table.Write();
+                Console.WriteLine("\nDepartment Students Info.");
+                table = new ConsoleTable
+                    ("ID", "Username", "First Name", "Last Name",
+                    "Email", "Phone Number", "Register Date");
+                for (int i = 0; i < department?.Students?.Count; i++)
+                {
+                    Student? student = department.Students[i];
+                    table.AddRow(
+                        student.Id, student.Username, student.FirstName, student.LastName,
+                        student.Email, student.Phone, student.RegisterDate?.ToString("yyyy-MM-dd")
+                        );
+                }
+                table.Write();
+                Console.WriteLine("\nDepartment Subjects Info.");
+                table = new ConsoleTable
+                    ("ID", "Name", "Term", "Year", "Minimum Degree");
+                for (int i = 0; i < department?.Subjects?.Count; i++)
+                {
+                    Subject? subject = department.Subjects[i];
+                    table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                }
+                table.Write();
+                Console.WriteLine("\n\n\n");
             }
-            Console.WriteLine("\n\n\n");
-            Console.WriteLine("Department Info.");
-            var table = new ConsoleTable
-                ("ID", "Name");
-            table.AddRow(department.Id,department.Name);
-            table.Write();
-            Console.WriteLine("\nDepartment Students Info.");
-            table = new ConsoleTable
-                ("ID", "Username", "First Name", "Last Name",
-                "Email", "Phone Number", "Register Date");
-            for (int i = 0; i < department?.Students?.Count; i++)
+            catch (Exception ex)
             {
-                Student? student = department.Students[i];
-                table.AddRow(
-                    student.Id, student.Username, student.FirstName, student.LastName,
-                    student.Email, student.Phone, student.RegisterDate?.ToString("yyyy-MM-dd")
-                    );
+                Console.WriteLine(ex.Message);
             }
-            table.Write();
-            Console.WriteLine("\nDepartment Subjects Info.");
-            table = new ConsoleTable
-                ("ID", "Name", "Term", "Year", "Minimum Degree");
-            for (int i = 0; i < department?.Subjects?.Count; i++)
+            finally
             {
-                Subject? subject = department.Subjects[i];
-                table.AddRow(subject.Id, subject.Name, subject.Term, subject.Year, subject.MinimumDegree);
+                Console.ReadKey();
             }
-            table.Write();
-            Console.WriteLine("\n\n\n");
-            Console.ReadKey();
         }
 
         private static void AddDepartment()
@@ -121,74 +130,86 @@ namespace EF_Core.Services
             Console.WriteLine();
             try
             {
-                Department newDepartment = new();
+                Department newDepartment = new();   
                 Console.Write("Please Enter The Name :  ");
                 newDepartment.Name = Console.ReadLine();
                 DepartmentController.AddDepartment(newDepartment);
-                Thread.Sleep(4000);
             }
             catch (Exception)
             {
                 Console.WriteLine("Please Enter Valid Values To add a new Department");
-                Thread.Sleep(4000);
             }
+            finally { Console.ReadKey(); }
         }
 
         private static void UpdateDepartment()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var department = DepartmentController.GetDepartment(Convert.ToInt32(Console.ReadLine()));
-            if (department == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
-            }
-            Console.Clear();
-            Console.WriteLine();
-            Console.WriteLine("*Enter a Number From Following to*\n");
-            Console.WriteLine("1 : Set a new Name");
-            Console.WriteLine("0 : Exit\n");
-            int option = -1;
-            do
-            {
-                try
+                var department = DepartmentController.GetDepartment(Convert.ToInt32(Console.ReadLine()));
+                if (department == null)
                 {
-                    Console.Write("Number :   ");
-                    option = Convert.ToInt32(Console.ReadLine());
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Please Enter a Valid Value");
-                }
-            } while (option < 0 || option > 1);
-            Console.WriteLine("\n");
-            switch (option)
-            {
-                case 1:
-                    Console.Write("Please Enter The New Name :  ");
-                    department.Name = Console.ReadLine();
-                    DepartmentController.UpdateDepartment(department);
-                    Thread.Sleep(4000);
-                    break;
-                case 0:
+                    Console.WriteLine("Next Time Enter a Valid ID");
                     return;
+                }
+                Console.Clear();
+                Console.WriteLine();
+                Console.WriteLine("*Enter a Number From Following to*\n");
+                Console.WriteLine("1 : Set a new Name");
+                Console.WriteLine("0 : Exit\n");
+                int option = -1;
+                do
+                {
+                    try
+                    {
+                        Console.Write("Number :   ");
+                        option = Convert.ToInt32(Console.ReadLine());
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Please Enter a Valid Value");
+                    }
+                } while (option < 0 || option > 1);
+                Console.WriteLine("\n");
+                switch (option)
+                {
+                    case 1:
+                        Console.Write("Please Enter The New Name :  ");
+                        department.Name = Console.ReadLine();
+                        DepartmentController.UpdateDepartment(department);
+                        break;
+                    case 0:
+                        return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.ReadKey();
             }
         }
 
         private static void RemoveDepartment()
         {
             Console.WriteLine("\n*Please Select An ID From Above Table*\n");
-            var department = DepartmentController.GetDepartment(Convert.ToInt32(Console.ReadLine()));
-            if (department == null)
+            try
             {
-                Console.WriteLine("Next Time Enter a Valid ID");
-                Thread.Sleep(3000);
-                return;
+                var department = DepartmentController.GetDepartment(Convert.ToInt32(Console.ReadLine()));
+
+                if (department == null)
+                {
+                    Console.WriteLine("Next Time Enter a Valid ID");
+                    return;
+                }
+                DepartmentController.RemoveDepartment(department);
+                Console.WriteLine();
             }
-            DepartmentController.RemoveDepartment(department);
-            Console.WriteLine();
-            Thread.Sleep(4000);
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            finally { Console.ReadKey(); }
         }
     }
 }

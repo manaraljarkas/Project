@@ -23,11 +23,11 @@ namespace EF_Core.Controllers
         public static Student? GetStudent(int? id)
         {
             var _context = new ApplicationDbContext();
-            var student = _context.Students?
+            var student = _context.Students!
                 .Include(b => b.Department)
-                ?.Include(b => b.StudentMarks)
-                !.ThenInclude(b =>b.Exam)
-                !.ThenInclude(d => d!.Subject)
+                .Include(b => b.StudentMarks)
+                .ThenInclude(b =>b.Exam)
+                .ThenInclude(d => d!.Subject)
                 .SingleOrDefault(b => b.Id == id);
 
             return student;
